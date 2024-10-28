@@ -91,6 +91,12 @@ Cluster nodes:
 Total nodes: 1
 ```
 
+テンプレートを変更して再適用したい場合は、以下のコマンドを実行します。
+
+```bash
+cyclecloud import_template -f openpbs_hpc.txt --force
+```
+
 実行後、管理ポートあるを確認してみると、以下赤枠の通りクラスターが追加されているされていることが確認できます。
 
 ![クラスター追加](/docs/images/clusterlist_new.png)
@@ -161,6 +167,8 @@ Azure NetApp Filesのボリュームをマウントする場合は、Azure Porta
 ![ANFマウント指示](/docs/images/anf-vol-instructions.png)
 
 ![ネットワーク設定](/docs/images/cluster-nas.png)
+
+![BLOBコンテナーの設定](docs/images/2024-05-22-10-40-30.png)
 
 #### Advanced Settings
 

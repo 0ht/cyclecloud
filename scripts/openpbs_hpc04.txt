@@ -21,6 +21,8 @@ Autoscale = $Autoscale
         pbspro.version = $PBSVersion
         # For fast spin-up after Deallocate, force an immediate re-converge on boot
         cyclecloud.converge_on_boot = true
+        cyclecloud.hosts.standalone_dns.enabled = $standalone_dns
+        # cyclecloud.hosts.simple_vpc_dns.enabled = $standalone_dns
 
         # Disable normal NFS exports and mounts
         cyclecloud.mounts.sched.disabled = true
@@ -133,7 +135,7 @@ Autoscale = $Autoscale
     MachineType = $ExecuteMachineType
     MaxCoreCount = $MaxExecuteCoreCount
     EphemeralOSDisk = true
-    ComputerName = $ComputerName
+    ComputerNamePrefix = $ComputerNamePrefix_execute
 
     Interruptible = $UseLowPrio
     AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
@@ -146,11 +148,12 @@ Autoscale = $Autoscale
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = $ExecuteNodesPublic
 
-    [[nodearray HB120rs_v3]]
+    [[nodearray HB]]
     MachineType = Standard_HB120rs_v3
     MaxCoreCount = $MaxExecuteCoreCount
     ImageName = $ImageName_HBv3
     EphemeralOSDisk = true
+    ComputerNamePrefix = $ComputerNamePrefix_HB
 
     Interruptible = $UseLowPrio_HBv3
     AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
@@ -163,13 +166,14 @@ Autoscale = $Autoscale
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = $ExecuteNodesPublic
 
-        [[[cluster-init pbspro:mnt_nvme:2.0.16]]]
+        [[[cluster-init pbspro:mnt_nvme:2.0.23]]]
 
-    [[nodearray NC48ads_A100_v4]]
+    [[nodearray NC]]
     MachineType = Standard_NC48ads_A100_v4
     MaxCoreCount = $MaxExecuteCoreCount
     ImageName = $ImageName_NCA100v4
     EphemeralOSDisk = true
+    ComputerNamePrefix = $ComputerNamePrefix_NC
 
     Interruptible = $UseLowPrio_NCA100v4
     AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
@@ -182,11 +186,12 @@ Autoscale = $Autoscale
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = $ExecuteNodesPublic
 
-    [[nodearray M128s_v2]]
+    [[nodearray M]]
     MachineType = Standard_M128s_v2
     MaxCoreCount = $MaxExecuteCoreCount
     ImageName = $ImageName_Msv2
     EphemeralOSDisk = true
+    ComputerNamePrefix = $ComputerNamePrefix_M
 
     Interruptible = $UseLowPrio_Msv2
     AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
@@ -224,7 +229,9 @@ Order = 10
         [[[parameter serverMachineType]]]
         Label = Server VM Type
         Description = The VM type for scheduler server and shared filer.
-        DefaultValue = Standard_D2as_v4
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_D2d_v5
+        Config.Multiselect = true
 
         [[[parameter EphemeralOSDisk]]]
         Label = Server EphemeralOSDisk 
@@ -238,8 +245,12 @@ Order = 10
         Label = Execute VM Type
         Description = The VM type for execute nodes
         ParameterType = Cloud.MachineType
-        DefaultValue = Standard_F2s_v2
+        DefaultValue = Standard_D2d_v5
         Config.Multiselect = true
+
+        [[[parameter standalone_dns]]]
+        Label = standalone_dns
+        DefaultValue = true
 
     [[parameters Auto-Scaling]]
     Description = "The cluster can autoscale to the workload, adding execute hosts as jobs are queued. To enable this check the box below and choose the initial and maximum core counts for the cluster"
@@ -254,7 +265,7 @@ Order = 10
         [[[parameter MaxExecuteCoreCount]]]
         Label = Max Cores
         Description = The total number of execute cores to start
-        DefaultValue = 100
+        DefaultValue = 1500
         Config.Plugin = pico.form.NumberTextBox
         Config.MinValue = 1
         Config.IntegerOnly = true
@@ -265,11 +276,19 @@ Order = 10
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Use low priority instances for execute hosts
 
+        [[[parameter ComputerNamePrefix_execute]]]
+        Label = ComputerNamePrefix
+        DefaultValue = exe-
+
         [[[parameter UseLowPrio_HBv3]]]
         Label = Low Priority
         DefaultValue = false
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Use low priority instances for HBv3
+
+        [[[parameter ComputerNamePrefix_HB]]]
+        Label = ComputerNamePrefix
+        DefaultValue = HB-
 
         [[[parameter UseLowPrio_NCA100v4]]]
         Label = Low Priority
@@ -277,12 +296,20 @@ Order = 10
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Use low priority instances for NC_A100_v4
 
+        [[[parameter ComputerNamePrefix_NC]]]
+        Label = ComputerNamePrefix
+        DefaultValue = NC-
+
         [[[parameter UseLowPrio_Msv2]]]
         Label = Low Priority
         DefaultValue = false
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Use low priority instances for Msv2
 
+        [[[parameter ComputerNamePrefix_M]]]
+        Label = ComputerNamePrefix
+        DefaultValue = M-
+        
     [[parameters Networking]]
     Order = 40
 

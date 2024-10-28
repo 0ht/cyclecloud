@@ -201,6 +201,7 @@ module anf 'br/public:avm/res/net-app/net-app-account:0.1.2' = {
   }
 }
 
+
 param storageAccountName string = 'cyclecloudshare'
 param isHnsEnabled bool  = true
 param isNfsV3Enabled bool = true
@@ -294,9 +295,12 @@ resource role 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     principalType: 'ServicePrincipal'
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
   }
+  dependsOn: [
+    ccVM
+  ]
 }
 
-// Admin VM
+// Admin VM 
 param adminVMName string
 param adminVMSize string
 param adminisSpotVM bool

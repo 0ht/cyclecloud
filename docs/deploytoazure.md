@@ -54,3 +54,37 @@ az deployment sub create --location eastus --parameters 'main.bicepparam'
 
 ![実行結果](/docs/images/deployment_status.png)
 
+### Tips
+
+CycleCloud imageを初めて利用する場合は、”VMがデプロイされない” 問題が発生することがあります。これは ”Marketplace purchase eligibilty check" によるものです。以下のコマンドを実行しtermsをacceptしたうえでリトライください。
+
+```bash
+az vm image terms accept --urn azurecyclecloud:azure-cyclecloud:cyclecloud8-gen2:latest
+```
+
+実行結果例：
+```bash
+$ az vm image terms accept --urn azurecyclecloud:azure-cyclecloud:cyclecloud8-gen2:latest
+{
+  "accepted": true,
+  "id": "/subscriptions/d4a69daf-7d19-4fa9-9840-3e522d9321fb/providers/Microsoft.MarketplaceOrdering/offerTypes/Microsoft.MarketplaceOrdering/offertypes/publishers/azurecyclecloud/offers/azure-cyclecloud/plans/cyclecloud8-gen2/agreements/current",
+  "licenseTextLink": "https://storeordersprodsn.blob.core.windows.net/legalterms/XXXXXXXXX.txt",
+  "marketplaceTermsLink": "https://storeordersprodsn.blob.core.windows.net/marketplaceterms/XXXXXXXX.txt",
+  "name": "cyclecloud8-gen2",
+  "plan": "cyclecloud8-gen2",
+  "privacyPolicyLink": "https://privacy.microsoft.com/en-us/privacystatement",
+  "product": "azure-cyclecloud",
+  "publisher": "azurecyclecloud",
+  "retrieveDatetime": "2024-09-25T09:48:02.679178Z",
+  "signature": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "systemData": {
+    "createdAt": "2024-09-25T09:48:05.232484+00:00",
+    "createdBy": "d4a69daf-7d19-4fa9-9840-3e522d9321fb",
+    "createdByType": "ManagedIdentity",
+    "lastModifiedAt": "2024-09-25T09:48:05.232484+00:00",
+    "lastModifiedBy": "d4a69daf-7d19-4fa9-9840-3e522d9321fb",
+    "lastModifiedByType": "ManagedIdentity"
+  },
+  "type": "Microsoft.MarketplaceOrdering/offertypes"
+}
+```

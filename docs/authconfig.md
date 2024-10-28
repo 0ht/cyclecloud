@@ -46,7 +46,7 @@ CycleCloudが提供する管理UIやクラスター定義などの管理を行�
 + Active Directory：Active Directory サーバーを使用してユーザーを認証します。
 + LDAP：LDAP サーバーを使用してユーザーを認証します。
 
-#### CycleCloudユーザーの認証構成手順
+### CycleCloudユーザーの認証構成手順
 
 以下のドキュメントを元に、**1. AD連携（実際にはAADDSとの連携）**、Previewの **2. Entra ID連携**を確認します。
 
@@ -54,7 +54,7 @@ CycleCloudが提供する管理UIやクラスター定義などの管理を行�
 + [ユーザー認証 - Azure CycleCloud](https://learn.microsoft.com/ja-jp/azure/cyclecloud/how-to/user-authentication?view=cyclecloud-8)
 + [クラスター ユーザー管理 - Azure CycleCloud](https://learn.microsoft.com/ja-jp/azure/cyclecloud/how-to/user-access?view=cyclecloud-8)
 
-##### 1. Active Directoryとの連携
+#### 1. Active Directoryとの連携
 
 このケースでは、CycleCloudユーザーの認証をActive Directoryと連携させます。
 
@@ -76,7 +76,7 @@ CycleCloudでは、先に紹介した認証設定画面を開き、以下を指�
 > [!WARNING]
 > CycleCloud 8.6 では、このテスト認証機能に不具合があるようで、正常に認証できない場合があるようです。
 
-##### 2.Entra IDとの連携（preview）
+#### 2.Entra IDとの連携（preview）
 
 Entra IDと直接連携してユーザー認証を行う事も可能です。（2024/04時点ではPreview）
 以下の様なイメージになります。
@@ -112,15 +112,13 @@ Entra ID との連携を行う場合、事前にAzure Portal から Entra ID の
 
 ここからは、デプロイされたクラスターノードにログインし、ジョブを投入するユーザーの認証構成について説明します。まずは前提として、ノード上に生成されるユーザーについて説明します。
 
-#### クラスターノード上に生成されるユーザーについて
-
-##### VMに規定で生成される管理用のcyclecloudユーザー
+#### VMに規定で生成される管理用のcyclecloudユーザー
 
 CycleCloudによって生成されるコンピュートノードには、規定でVMエージェントにより生成される`cyclecloud`ユーザーが存在します。このユーザーの SSH 秘密キーは、CycleCloud サーバーの /opt/cycle_server/.ssh/cyclecloud.pem に配置されていますので、この秘密キーを使用してユーザーはコンピュートノードにログイン可能です。しかしながら、このユーザー管理ユーザーという位置づけですので、一般ユーザーとしての利用は想定されていません。
 
 そこで必要になるのが、ジョブを投入したりする一般ユーザーの管理になります。
 
-##### 一般ユーザーの管理方法
+#### 一般ユーザーの管理方法
 
 実際にログインしてジョブを投入するOSの一般ユーザーとしては、以下の管理方法があります。
 
@@ -140,13 +138,11 @@ CycleCloudによって生成されるコンピュートノードには、規定�
 
 これらは排他的に設定する必要はなく、built-in でCycleCloud上で定義したユーザーを利用しつつ、特定のユーザーにおいてはAD連携を行って認証するといった構成も可能です。
 
-#### 構成手順
+### 構成手順
 
 それぞれの方法でのユーザーの管理構成手順を説明します。
 
-##### Built-in
-
-###### 構成手順
+#### Built-in
 
 設定から、以下のCycleCloud 構成画面を開きます。
 
@@ -175,7 +171,7 @@ CycleCloudによって生成されるコンピュートノードには、規定�
 
 ![クラスターアクセス](images/cluster_access.png)
 
-###### 確認
+##### 確認
 
 実際にCycleCloudマスタノードにログインして今回追加した`builinuser01`ユーザーが作成されているかどうか確認します。
 
@@ -193,7 +189,7 @@ uid=20013(builtinuser01) gid=20013(builtinuser01) groups=20013(builtinuser01)
 ![グループへのメンバー追加](/docs/images/group_member_add.png)
 
 
-##### クラスタージョブ実行ユーザーのAD連携
+#### クラスタージョブ実行ユーザーのAD連携
 
 ここまではbuilt-inでのユーザー管理を行いましたが、別途計算ノードにおいても Active Directory との連携を行う事も可能です。（Cloud-initなどに構成の仕込みが必要になります。）
 以下の資料を参考に、Active Directory との連携を行います。
@@ -202,7 +198,7 @@ uid=20013(builtinuser01) gid=20013(builtinuser01) groups=20013(builtinuser01)
 + [クラスター ユーザー管理 - Azure CycleCloud](https://learn.microsoft.com/ja-jp/azure/cyclecloud/how-to/user-access?view=cyclecloud-8)
 + 一般的なLinux VMのドキュメントとして、[Linux VMをAD参加させる手順](https://learn.microsoft.com/ja-jp/entra/identity/domain-services/join-rhel-linux-vm?tabs=rhel) が紹介されていますが、ここでは、cloud-initを利用して、VMの起動時にAD参加を行う方法を紹介します。
 
-###### ADの設定
+##### ADの設定
 
 まずは、ADの構築・設定を行います。ここでは、Entra ID Domain Services を利用します。
 
@@ -213,7 +209,7 @@ uid=20013(builtinuser01) gid=20013(builtinuser01) groups=20013(builtinuser01)
 
 ![Entra ID DSのプロパティ](/docs/images/entraidds_porperty.png)
 
-###### cloud-initの設定
+##### cloud-initの設定
 
 cloud-init の設定を行います。
 
@@ -333,7 +329,7 @@ runcmd:
 
 ![Cloud-initの設定](/docs/images/cloud-init_configuration.png)
 
-###### 確認
+##### 確認
 
 実際にノードにログインし、ADユーザーでログインできるか確認します。
 

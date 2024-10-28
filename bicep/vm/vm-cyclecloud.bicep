@@ -9,7 +9,7 @@ param adminPassword string
 //param securityType string
 param vnetName string
 param subnetName string
-param isSpotVM bool = false 
+param isSpotVM bool
 
 resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' existing =  {
   name: vnetName

@@ -109,8 +109,8 @@ CycleCloud 8.6.1-3248
 設定項目 | 設定内容 | 説明
 -----|------|---
 CycleServer URL | https://vm-cyclecloud |仮想ネットワーク内からのアクセスのため、https://vm-cyclecloud を指定します。
-CycleServer username | 管理者ユーザ名 | デプロイ時に使用したvm-cycleadminの管理者ユーザ名を指定します。
-CycleServer password | 管理者ユーザのパスワード |デプロイ時に使用したvm-cycleadminの管理者ユーザのパスワードを指定します。
+CycleServer username | 管理者ユーザ名 | CycleCloudのポータルへ初回アクセス時に指定したvm-cycleadminの管理者ユーザ名を指定します。
+CycleServer password | 管理者ユーザのパスワード | CycleCloudのポータルへ初回アクセス時に指定したvm-cycleadminの管理者ユーザのパスワードを指定します。
 
 ```bash
 cyclecloud initialize

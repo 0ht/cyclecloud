@@ -6,27 +6,23 @@
 + CycleCloudは8.6 （ OSS や、その他 Azure 等プラットフォームのバージョンは2024年4月時点の環境）を利用しています。
 
 目次
-
-+ [CycleCloudとは](/docs/whatiscyckecloud.md)
-
++ [CycleCloudとは](/docs/whatiscyclecloud.md)
 + 構築手順
-
   + [Azureリソースのデプロイ](/docs/deploytoazure.md)
-
   + [CycleCloudサーバーの設定](/docs/configCCserver.md)
-
   + [CycleCloudクラスターのデプロイ・起動・動作確認](docs/deploycccluster.md)
-
   + [クラスターの動作確認](/docs/testcluster.md)
 
++ クラスター定義・カスタマイズ
+  + クラスターテンプレート
+  + PBS スケジューラーとの連携
+  + [カスタムイメージの利用](/docs/customimage.md)
+
++ セキュリティ
   + [認証構成](/docs/authconfig.md)
   
++ 運用・管理
   + [クラスターの操作](/docs/clusteroperations.md)
+  + [ログ管理](/docs/log.md)
+  + [トラブルシューティング](/docs/errors.md) 
 
-+ [ログ管理](/docs/log.md)
-
-+ [トラブルシューティング](/docs/errors.md) 
-
-+ クラスター定義詳細
-
-+ テンプレート詳細
