@@ -57,29 +57,43 @@ https://learn.microsoft.com/ja-jp/entra/identity/domain-services/concepts-custom
 ### ディレクトリ拡張属性を定義する
 
 ディレクトリ拡張を利用するには、まずはそれを所有するアプリケーションを作成する必要があります。
+
 以下の手順で、ディレクトリ拡張属性を定義するアプリケーションを作成します。
+作成したアプリのオブジェクト ID はこの後使用するため、コピーしておきます。
 
 - [CycleCloud で使用する Entra アプリ登録を作成する (プレビュー)](https://learn.microsoft.com/ja-jp/azure/cyclecloud/how-to/create-app-registration?view=cyclecloud-8#creating-the-cyclecloud-app-registration)
 
 #### プロパティを作成
 
-以下のAPIをコールして、ディレクトリ拡張属性を定義します。
-APIは、graph Explorerから呼び出します。
+APIをコールして、ディレクトリ拡張属性を定義します。
+APIは Graph Explorer (https://developer.microsoft.com/en-us/graph/graph-explorer) から呼び出します。
 
 APIコールの際には、予め 「Consent to permissions」からコール対象のAPIに対してConsentしておく必要があります。
 
 ![consenttopermissions](/docs/images/customattribute/consenttopermissions.png)
 
-「Consent」をクリックして、同意します。
-![Consent](/docs/images/customattribute/2024-05-28-18-27-24.png)
+次の 2 つを検索して「Consent」をクリックし、同意します。
 
+- User.ReadWrite.All
+- Application.ReadWrite.All
+
+![Consent](/docs/images/customattribute/2024-11-13_11h31_00.png)
+![Consent](/docs/images/customattribute/2024-11-13_11h36_28.png)
+
+Graph Explorer を操作するユーザーの権限によっては、管理者の同意が求められます。
+
+[「管理者の承認が必要」のメッセージが表示された場合の対処法](https://jpazureid.github.io/blog/azure-active-directory/azure-ad-consent-framework/)
+
+![Consent](/docs/images/customattribute/2024-11-13_11h31_35.png)
 
 以下のリクエストを送信し、HomeDir 拡張プロパティを作成します。
 
-
 ```http
-POST https://graph.microsoft.com/v1.0/applications/367d5529-40f9-4d7d-a4b5-b1409b56f62b/extensionProperties
+POST https://graph.microsoft.com/v1.0/applications/<作成したアプリのオブジェクト ID>/extensionProperties
+```
 
+Request Body
+```json
 {
     "name": "HomeDir",
     "dataType": "String",
@@ -89,20 +103,21 @@ POST https://graph.microsoft.com/v1.0/applications/367d5529-40f9-4d7d-a4b5-b1409
 }
 ```
 
-![](/docs/images/customattribute/2024-05-24-17-38-07.png)
+![](/docs/images/customattribute/2024-11-13_11h43_56.png)
 
-以下の様な応答が返ります。
+以下のような応答が返ります。
+プロパティ名 (extension_xxxx_HomeDir) の xxx 部分は作成したアプリのオブジェクト ID になるため、環境により異なります。
 
 ```json
 {
-    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#applications('367d5529-40f9-4d7d-a4b5-b1409b56f62b')/extensionProperties/$entity",
-    "id": "9ce1ad00-506f-4fab-ab4a-9f527342ef44",
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#applications('04cbb5c6-538a-4e72-9b6c-6b94d1d9a2ac')/extensionProperties/$entity",
+    "id": "52de8db5-1939-4fac-9414-a5fece25fc52",
     "deletedDateTime": null,
-    "appDisplayName": "cyclecloud",
+    "appDisplayName": "SyncTest2",
     "dataType": "String",
     "isMultiValued": false,
     "isSyncedFromOnPremises": false,
-    "name": "extension_0d733bca93ac496b9de7f1921f5a69c0_homeDir",
+    "name": "extension_2a966f16f6104a42ba80bb7b8dc0e3c2_HomeDir",
     "targetObjects": [
         "User"
     ]
@@ -110,44 +125,63 @@ POST https://graph.microsoft.com/v1.0/applications/367d5529-40f9-4d7d-a4b5-b1409
 ```
 正常に作成されたようです。
 
-![](/docs/images/customattribute/2024-05-24-17-38-38.png)
+![](/docs/images/customattribute/2024-11-13_11h44_04.png)
 
+同様の API に対して Request Body を以下に変更して実行し、2 つ目のプロパティを追加します
+
+```json
+{
+    "name": "shell",
+    "dataType": "String",
+    "targetObjects": [
+        "User"
+    ]
+}
+```
+
+こちらも作成されました。
+
+![](/docs/images/customattribute/2024-11-13_11h50_16.png)
+![](/docs/images/customattribute/2024-11-13_11h50_26.png)
 
 #### プロパティ登録の確認
 
 以下のAPIをコールして、作成したプロパティが登録されていることを確認します。
 
 ```http
-GET https://graph.microsoft.com/v1.0/applications/367d5529-40f9-4d7d-a4b5-b1409b56f62b/extensionProperties
+GET https://graph.microsoft.com/v1.0/applications/<作成したアプリのオブジェクト ID>/extensionProperties
 ```
 
-以下の応答が返り、作成されていることが確認できました。
+![](/docs/images/customattribute/2024-11-13_11h50_56.png)
+
+以下の応答が返り、プロパティが作成されていることが確認できました。
+それぞれの name プロパティはこの後使用するため、コピーしておきます。
 
 ```json
 {
-    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#applications('367d5529-40f9-4d7d-a4b5-b1409b56f62b')/extensionProperties",
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#applications('04cbb5c6-538a-4e72-9b6c-6b94d1d9a2ac')/extensionProperties",
     "@microsoft.graph.tips": "Use $select to choose only the properties your app needs, as this can lead to performance improvements. For example: GET applications('<guid>')/extensionProperties?$select=appDisplayName,dataType",
     "value": [
         {
-            "id": "4bf0652f-48de-410c-a244-11282ecb5799",
+            "id": "520f040e-060f-4ab0-8dd7-e76bd6c86be1",
             "deletedDateTime": null,
             "appDisplayName": "",
             "dataType": "String",
             "isMultiValued": false,
             "isSyncedFromOnPremises": false,
-            "name": "extension_0d733bca93ac496b9de7f1921f5a69c0_shell",
+            "name": "extension_2a966f16f6104a42ba80bb7b8dc0e3c2_shell",
             "targetObjects": [
                 "User"
             ]
         },
         {
-            "id": "9ce1ad00-506f-4fab-ab4a-9f527342ef44",
+            "id": "52de8db5-1939-4fac-9414-a5fece25fc52",
             "deletedDateTime": null,
             "appDisplayName": "",
             "dataType": "String",
             "isMultiValued": false,
             "isSyncedFromOnPremises": false,
-            "name": "extension_0d733bca93ac496b9de7f1921f5a69c0_homeDir",
+            "name": "extension_2a966f16f6104a42ba80bb7b8dc0e3c2_HomeDir",
             "targetObjects": [
                 "User"
             ]
@@ -155,7 +189,7 @@ GET https://graph.microsoft.com/v1.0/applications/367d5529-40f9-4d7d-a4b5-b1409b
     ]
 }
 ```
-![](/docs/images/customattribute/2024-05-24-18-10-12.png)
+![](/docs/images/customattribute/2024-11-13_11h51_13.png)
 
 
 ### ターゲットオブジェクト（ユーザー）に拡張プロパティを追加する
@@ -163,40 +197,48 @@ GET https://graph.microsoft.com/v1.0/applications/367d5529-40f9-4d7d-a4b5-b1409b
 作成したプロパティは、そのプロパティを付与するオブジェクトに関連付けて初めて利用できるようになります。以下のAPIをコールして、ユーザーオブジェクトに拡張プロパティを追加します。
 
 ```http
-PATCH https://graph.microsoft.com/v1.0/users/b36e25f1-371a-4688-bfb5-78d811742bc2
-{
-    "extension_0d733bca93ac496b9de7f1921f5a69c0_homeDir": "/shared/home/",
-    "extension_0d733bca93ac496b9de7f1921f5a69c0_shell": "/bin/bash"
-}
-
+PATCH https://graph.microsoft.com/v1.0/users/<プロパティ追加対象ユーザーのオブジェクト ID>
 ```
-![](/docs/images/customattribute/2024-05-24-18-14-42.png)
 
-![](/docs/images/customattribute/2024-05-24-18-01-40.png)
+Request Body には先ほどコピーした name を指定します。
+```json
+{
+    "<extension_xxx_HomeDir>": "/shared/home/",
+    "<extension_xxx_shell>": "/bin/bash"
+}
+```
+![](/docs/images/customattribute/2024-11-13_16h30_57.png)
+
+ここでの応答は特にありません。
+
+![](/docs/images/customattribute/2024-11-13_16h31_15.png)
 
 ### 確認する
 
+次の API ではユーザーのプロパティを取得できますが、そのままで既定のプロパティしか取得できず、先ほど追加した拡張属性は表示されません。
+
 ```http
-GET https://graph.microsoft.com/v1.0/users/b36e25f1-371a-4688-bfb5-78d811742bc2
+GET https://graph.microsoft.com/v1.0/users/<プロパティ追加対象ユーザーのオブジェクト ID>
 ```
 
-Userの指定だけだと、既定のプロパティしか取得できないので、`$select`を使って取得するプロパティを指定します。
-![](/docs/images/customattribute/2024-05-24-18-05-59.png)
+![](/docs/images/customattribute/2024-11-13_16h34_17.png)
+
+`$select`を用いて取得するプロパティを指定することで、拡張属性を表示できます。
 
 ```http
-GET https://graph.microsoft.com/v1.0/users/b36e25f1-371a-4688-bfb5-78d811742bc2?$select=id,displayName,extension_0d733bca93ac496b9de7f1921f5a69c0_homeDir,extension_0d733bca93ac496b9de7f1921f5a69c0_shell
+GET https://graph.microsoft.com/v1.0/users/<プロパティ追加対象ユーザーのオブジェクト ID>?$select=id,displayName,<extension_xxx_HomeDir>,<extension_xxx_shell>
 ```
 
 以下の通り、ユーザーに追加したプロパティ2つが取得できました。
-![](/docs/images/customattribute/2024-05-24-18-16-40.png)
+![](/docs/images/customattribute/2024-11-13_16h37_57.png)
 
 ```json
 {
-    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users/$entity",
-    "id": "b36e25f1-371a-4688-bfb5-78d811742bc2",
-    "displayName": "Entra User",
-    "extension_0d733bca93ac496b9de7f1921f5a69c0_homeDir": "/shared/home/",
-    "extension_0d733bca93ac496b9de7f1921f5a69c0_shell": "/bin/bash"
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users(id,displayName,extension_2a966f16f6104a42ba80bb7b8dc0e3c2_HomeDir,extension_2a966f16f6104a42ba80bb7b8dc0e3c2_shell)/$entity",
+    "id": "78f3cfa1-8f4a-4cf4-b1e0-5fc19357b781",
+    "displayName": "testuser01",
+    "extension_2a966f16f6104a42ba80bb7b8dc0e3c2_shell": "/bin/bash",
+    "extension_2a966f16f6104a42ba80bb7b8dc0e3c2_HomeDir": "/shared/home/"
 }
 ```
 これで、対象のオブジェクト（ユーザー）に、拡張プロパティを追加することができました。
@@ -213,7 +255,7 @@ Azure Portalにログインし、Entra DSへの同期対象になるプロパテ
 
 以下の画面が開きますので、先のステップで追加した属性を選択します。
 
-![](/docs/images/customattribute/2024-05-24-18-19-54.png)
+![](/docs/images/customattribute/2024-11-13_16h40_02.png)
 
 確認し、保存します。
 
@@ -223,7 +265,7 @@ Entra DSへの同期を、Active Directory 管理ツールから確認してみ�
 
 以下の通り、先ほど追加したプロパティが同期されていることが確認できました。
 
-![](/docs/images/customattribute/2024-05-24-18-44-13.png)
-![](/docs/images/customattribute/2024-05-24-18-44-52.png)
+![](/docs/images/customattribute/2024-11-13_18h19_36.png)
+![](/docs/images/customattribute/2024-11-13_18h19_57.png)
 
 
