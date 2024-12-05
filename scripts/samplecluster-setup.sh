@@ -34,19 +34,19 @@ cd ~/cyclecloud_projects/cyclecloud-pbspro/blobs
 
 if [ $(ls -lA | wc -l) -le 13 ]
 then
-wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.23/cyclecloud-pbspro-pkg-2.0.23.tar.gz
-wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.23/cyclecloud_api-8.3.1-py2.py3-none-any.whl
-wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.23/hwloc-libs-1.11.9-3.el8.x86_64.rpm
-wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.23/openpbs-client-20.0.1-0.x86_64.rpm
-wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.23/openpbs-client-22.05.11-0.x86_64.rpm
-wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.23/openpbs-execution-20.0.1-0.x86_64.rpm
-wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.23/openpbs-execution-22.05.11-0.x86_64.rpm
-wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.23/openpbs-server-20.0.1-0.x86_64.rpm
-wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.23/openpbs-server-22.05.11-0.x86_64.rpm
-wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.23/pbspro-client-18.1.4-0.x86_64.rpm
-wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.23/pbspro-debuginfo-18.1.4-0.x86_64.rpm
-wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.23/pbspro-execution-18.1.4-0.x86_64.rpm
-wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.23/pbspro-server-18.1.4-0.x86_64.rpm
+wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.24/cyclecloud-pbspro-pkg-2.0.24.tar.gz
+wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.24/cyclecloud_api-8.3.1-py2.py3-none-any.whl
+wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.24/hwloc-libs-1.11.9-3.el8.x86_64.rpm
+wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.24/openpbs-client-20.0.1-0.x86_64.rpm
+wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.24/openpbs-client-22.05.11-0.x86_64.rpm
+wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.24/openpbs-execution-20.0.1-0.x86_64.rpm
+wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.24/openpbs-execution-22.05.11-0.x86_64.rpm
+wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.24/openpbs-server-20.0.1-0.x86_64.rpm
+wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.24/openpbs-server-22.05.11-0.x86_64.rpm
+wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.24/pbspro-client-18.1.4-0.x86_64.rpm
+wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.24/pbspro-debuginfo-18.1.4-0.x86_64.rpm
+wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.24/pbspro-execution-18.1.4-0.x86_64.rpm
+wget https://github.com/Azure/cyclecloud-pbspro/releases/download/2.0.24/pbspro-server-18.1.4-0.x86_64.rpm
 else
     echo "files seem to be exists."
 fi
