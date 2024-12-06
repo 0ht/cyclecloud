@@ -293,46 +293,34 @@ Order = 10
         Config.MinValue = 1
         Config.IntegerOnly = true
 
-
-
-        [[[parameter UseLowPrio]]]
-        Label = Low Priority
-        DefaultValue = false
-        Widget.Plugin = pico.form.BooleanCheckBox
-        Widget.Label = Use low priority instances for execute hosts
-
-        [[[parameter ComputerNamePrefix_execute]]]
-        Label = ComputerNamePrefix
-        DefaultValue = exe-
-
         [[[parameter UseLowPrio_HBv3]]]
-        Label = Low Priority
+        Label = Use low priority instances for HBv3
         DefaultValue = false
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Use low priority instances for HBv3
 
         [[[parameter ComputerNamePrefix_HB]]]
-        Label = ComputerNamePrefix
+        Label = HBv3 ComputerNamePrefix
         DefaultValue = HB-
 
         [[[parameter UseLowPrio_NCA100v4]]]
-        Label = Low Priority
+        Label = Use low priority instances for NC_A100_v4
         DefaultValue = false
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Use low priority instances for NC_A100_v4
 
         [[[parameter ComputerNamePrefix_NC]]]
-        Label = ComputerNamePrefix
+        Label = NC_A100_v4 ComputerNamePrefix
         DefaultValue = NC-
 
         [[[parameter UseLowPrio_Msv2]]]
-        Label = Low Priority
+        Label = Use low priority instances for Msv2
         DefaultValue = false
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Use low priority instances for Msv2
 
         [[[parameter ComputerNamePrefix_M]]]
-        Label = ComputerNamePrefix
+        Label = Msv2 ComputerNamePrefix
         DefaultValue = M-
         
     [[parameters Networking]]
