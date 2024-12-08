@@ -122,14 +122,14 @@ Autoscale = $Autoscale        # nodearrays で自動開始と停止を有効に�
         [[[volume sched]]]
         ### マスターノードの/schedディスク定義です。VMのデータディスクとして追加されます。以下参照し、要件に応じてオプション指定してください。
         Size = 1024                 # サイズをGB単位で指定します。
-        StorageAccountType = True   # UltraSSD_LRS、Premium_LRS、StandardSSD_LRS、Standard_LRS (Azure Disk Types) が設定されていない場合、VM サイズの機能に応じて既定でStandard_LRSまたはPremium_LRSされます。
+        StorageAccountType = $SchedSKU   # UltraSSD_LRS、Premium_LRS、StandardSSD_LRS、Standard_LRS (Azure Disk Types) が設定されていない場合、VM サイズの機能に応じて既定でStandard_LRSまたはPremium_LRSされます。
         Mount = builtinsched        # configuration オブジェクトで説明されているマウント コンストラクトの名前 を指定します。
         Persistent = True           # ディスクの内容を永続化する/しない の設定です。
 
         [[[volume shared]]]
         ### マスターノードの/schedディスク定義です。VMのデータディスクとして追加されます。以下参照し、要件に応じてオプション指定してください。MFSTypeパラメータにBuiltin が指定された場合は、
         Size = ${ifThenElse(NFSType == "Builtin", FilesystemSize, 10)}
-        StorageAccountType = True   # UltraSSD_LRS、Premium_LRS、StandardSSD_LRS、Standard_LRS (Azure Disk Types) が設定されていない場合、VM サイズの機能に応じて既定でStandard_LRSまたはPremium_LRSされます。
+        StorageAccountType = $SharedSKU   # UltraSSD_LRS、Premium_LRS、StandardSSD_LRS、Standard_LRS (Azure Disk Types) が設定されていない場合、VM サイズの機能に応じて既定でStandard_LRSまたはPremium_LRSされます。
         Mount = builtinshared       # configuration オブジェクトで説明されているマウント コンストラクトの名前 を指定します。
         Persistent = ${NFSType == "Builtin"}
 
@@ -394,6 +394,13 @@ Order = 15
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = External Scheduler
 
+		[[[parameter SchedSKU]]]
+		Label = Storage SKU
+		Description = The SKU of the storage to use for the /sched mount
+		Config.Plugin = pico.form.Dropdown
+        Config.Entries := {[Label="Standard_LRS"; Value="Standard_LRS"], [Label="StandardSSD_LRS"; Value="StandardSSD_LRS"], [Label="Premium_LRS"; Value="Premium_LRS"]}
+		DefaultValue = Premium_LRS
+
     [[parameters Default NFS Share]]
     Order = 10
         [[[parameter About shared]]]
@@ -437,6 +444,14 @@ Order = 15
         Config.MaxValue = 10240
         Config.IntegerOnly = true
         Conditions.Excluded := NFSType != "Builtin"
+
+		[[[parameter SharedSKU]]]
+		Label = Storage SKU
+		Description = The SKU of the storage to use for the /shared mount
+		Config.Plugin = pico.form.Dropdown
+		Config.Entries := {[Label="Standard_LRS"; Value="Standard_LRS"], [Label="StandardSSD_LRS"; Value="StandardSSD_LRS"], [Label="Premium_LRS"; Value="Premium_LRS"]}
+		DefaultValue = Premium_LRS
+		Conditions.Excluded := NFSType != "Builtin"
 
     [[parameters Additional NFS Mount]]
     Order = 20
