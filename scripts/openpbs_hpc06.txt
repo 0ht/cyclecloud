@@ -15,7 +15,7 @@ Autoscale = $Autoscale        # nodearrays で自動開始と停止を有効に�
     ## デフォルトノードの定義。[[node defaults]] は、クラスター内のすべてのノードと nodearray の既定の設定を指定する特別な抽象ノード
     ## https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/node-nodearray-reference?view=cyclecloud-8
 
-    UsePublicNetwork = $UsePublicNetwork      # ？？ ドキュメントに記載がない
+    UsePublicNetwork = false      # ？？ ドキュメントに記載がない
     Credentials = $Credentials                # クラウド プロバイダー アカウントの名前
     ImageName = $ImageName                    # VM イメージは、仮想マシンを起動するために必要な設定です。 イメージ定義には、既定の CycleCloud イメージ名、Marketplace イメージ定義、イメージ ID の 3 つの有効な形式があります。
     SubnetId = $SubnetId                      # ${rg}/${vnet}/${subnet} 形式のサブネット定義
