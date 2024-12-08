@@ -305,6 +305,14 @@ Order = 10
 		widget.Plugin = pico.form.BooleanCheckBox
 		widget.Label = HBv3 EphemeralOSDisk
 
+		[[[parameter MaxHBCoreCount]]]
+		Label = Max Cores
+		Description = The total number of execute cores to start
+		DefaultValue = 500
+		Config.Plugin = pico.form.NumberTextBox
+		Config.MinValue = 1
+		Config.IntegerOnly = true
+
         [[[parameter ComputerNamePrefix_HB]]]
         Label = HBv3 ComputerNamePrefix
         DefaultValue = HB-
@@ -321,6 +329,14 @@ Order = 10
 		widget.Plugin = pico.form.BooleanCheckBox
 		widget.Label = NC_A100_v4 EphemeralOSDisk
 
+		[[[parameter MaxNCCoreCount]]]
+		Label = Max Cores
+		Description = The total number of execute cores to start
+		DefaultValue = 500
+		Config.Plugin = pico.form.NumberTextBox
+		Config.MinValue = 1
+		Config.IntegerOnly = true
+
         [[[parameter ComputerNamePrefix_NC]]]
         Label = NC_A100_v4 ComputerNamePrefix
         DefaultValue = NC-
@@ -336,6 +352,14 @@ Order = 10
 		DefaultValue = false
 		widget.Plugin = pico.form.BooleanCheckBox
 		widget.Label = Msv2 EphemeralOSDisk
+
+		[[[parameter MaxMCoreCount]]]
+		Label = Max Cores
+		Description = The total number of execute cores to start
+		DefaultValue = 500
+		Config.Plugin = pico.form.NumberTextBox
+		Config.MinValue = 1
+		Config.IntegerOnly = true
 
         [[[parameter ComputerNamePrefix_M]]]
         Label = Msv2 ComputerNamePrefix
