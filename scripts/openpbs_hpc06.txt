@@ -299,6 +299,12 @@ Order = 10
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Use low priority instances for HBv3
 
+		[[[parameter HBEphemeralOSDisk]]]
+		Label = EphemeralDisk for HBv3
+		DefaultValue = false
+		widget.Plugin = pico.form.BooleanCheckBox
+		widget.Label = HBv3 EphemeralOSDisk
+
         [[[parameter ComputerNamePrefix_HB]]]
         Label = HBv3 ComputerNamePrefix
         DefaultValue = HB-
@@ -309,6 +315,12 @@ Order = 10
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Use low priority instances for NC_A100_v4
 
+		[[[parameter NCEphemeralOSDisk]]]
+		Label = EphemeralDisk for NC_A100_v4
+		DefaultValue = false
+		widget.Plugin = pico.form.BooleanCheckBox
+		widget.Label = NC_A100_v4 EphemeralOSDisk
+
         [[[parameter ComputerNamePrefix_NC]]]
         Label = NC_A100_v4 ComputerNamePrefix
         DefaultValue = NC-
@@ -318,6 +330,12 @@ Order = 10
         DefaultValue = false
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Use low priority instances for Msv2
+
+		[[[parameter MEphemeralOSDisk]]]
+		Label = EphemeralDisk for Msv2
+		DefaultValue = false
+		widget.Plugin = pico.form.BooleanCheckBox
+		widget.Label = Msv2 EphemeralOSDisk
 
         [[[parameter ComputerNamePrefix_M]]]
         Label = Msv2 ComputerNamePrefix
