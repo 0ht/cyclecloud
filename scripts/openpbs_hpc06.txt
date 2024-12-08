@@ -395,11 +395,12 @@ Order = 15
         Widget.Label = External Scheduler
 
 		[[[parameter SchedSKU]]]
-		Label = Storage SKU
+		Label = sched SKU
 		Description = The SKU of the storage to use for the /sched mount
 		Config.Plugin = pico.form.Dropdown
         Config.Entries := {[Label="Standard_LRS"; Value="Standard_LRS"], [Label="StandardSSD_LRS"; Value="StandardSSD_LRS"], [Label="Premium_LRS"; Value="Premium_LRS"]}
 		DefaultValue = Premium_LRS
+		Conditions.Excluded := NFSSchedDisable
 
     [[parameters Default NFS Share]]
     Order = 10
@@ -446,7 +447,7 @@ Order = 15
         Conditions.Excluded := NFSType != "Builtin"
 
 		[[[parameter SharedSKU]]]
-		Label = Storage SKU
+		Label = NFS SKU
 		Description = The SKU of the storage to use for the /shared mount
 		Config.Plugin = pico.form.Dropdown
 		Config.Entries := {[Label="Standard_LRS"; Value="Standard_LRS"], [Label="StandardSSD_LRS"; Value="StandardSSD_LRS"], [Label="Premium_LRS"; Value="Premium_LRS"]}
