@@ -128,7 +128,7 @@ Autoscale = $Autoscale        # nodearrays で自動開始と停止を有効に�
 
         [[[volume shared]]]
         ### マスターノードの/schedディスク定義です。VMのデータディスクとして追加されます。以下参照し、要件に応じてオプション指定してください。MFSTypeパラメータにBuiltin が指定された場合は、
-        Size = ${ifThenElse(NFSType == "Builtin", Size, 10)}
+        Size = ${ifThenElse(NFSType == "Builtin", FilesystemSize, 10)}
         StorageAccountType = True   # UltraSSD_LRS、Premium_LRS、StandardSSD_LRS、Standard_LRS (Azure Disk Types) が設定されていない場合、VM サイズの機能に応じて既定でStandard_LRSまたはPremium_LRSされます。
         Mount = builtinshared       # configuration オブジェクトで説明されているマウント コンストラクトの名前 を指定します。
         Persistent = ${NFSType == "Builtin"}
