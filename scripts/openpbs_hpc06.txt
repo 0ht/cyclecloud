@@ -168,7 +168,7 @@ Autoscale = $Autoscale        # nodearrays で自動開始と停止を有効に�
     ImageName = $ImageName_HBv3                             # VMのイメージを指定します。
     EphemeralOSDisk = $HBEphemeralOSDisk                    # EphemeralOSDisk の利用あり/なし を指定します
     ComputerNamePrefix = $ComputerNamePrefix_HB             # コンピュータ名のprefixを指定します。standalone_dns を無効化した場合のみ有効です。
-    Interruptible = $SpotVMHB                               # Spot VMを利用する場合にtrueにします。今回は使用しないと思いますので、falseとします。
+    Interruptible = $UseLowPrio_HBv3                               # Spot VMを利用する場合にtrueにします。今回は使用しないと思いますので、falseとします。
     AdditionalClusterInitSpecs = $HBClusterInitSpecs        # ？？ 追加で実施する HBClusterInitSpecs を指定します。
 
         [[[configuration]]]
@@ -185,7 +185,7 @@ Autoscale = $Autoscale        # nodearrays で自動開始と停止を有効に�
     ImageName = $ImageName_NCA100v4
     EphemeralOSDisk = $NCEphemeralOSDisk 
     ComputerNamePrefix = $ComputerNamePrefix_NC
-    Interruptible = $SpotVMNC
+    Interruptible = $UseLowPrio_NCA100v4
     AdditionalClusterInitSpecs = $NCClusterInitSpecs
 
         [[[configuration]]]
