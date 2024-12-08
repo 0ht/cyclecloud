@@ -1,0 +1,631 @@
+
+################################
+## Cluster Configuration File ##
+################################
+
+[cluster OpenPBS_HPC_06]
+# クラスター全体定義以下参照
+# https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/cluster-reference?view=cyclecloud-8#attribute-reference
+
+FormLayout = selectionpanel   # マルチパネル ディスプレイの場合は "SelectionPanel" 、パラメーターのフラット リストの場合は "List" です。 設定されていない場合、既定値は "List" になります
+Category = Schedulers         # クラスター アイコンを表示するカテゴリ
+Autoscale = $Autoscale        # nodearrays で自動開始と停止を有効にする
+
+    [[node defaults]]
+    ## デフォルトノードの定義。[[node defaults]] は、クラスター内のすべてのノードと nodearray の既定の設定を指定する特別な抽象ノード
+    ## https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/node-nodearray-reference?view=cyclecloud-8
+
+    UsePublicNetwork = false      # ？？ ドキュメントに記載がない
+    Credentials = $Credentials                # クラウド プロバイダー アカウントの名前
+    ImageName = $ImageName                    # VM イメージは、仮想マシンを起動するために必要な設定です。 イメージ定義には、既定の CycleCloud イメージ名、Marketplace イメージ定義、イメージ ID の 3 つの有効な形式があります。
+    SubnetId = $SubnetId                      # ${rg}/${vnet}/${subnet} 形式のサブネット定義
+    Region = $Region                          # ？？ （ドキュメントに記載がありませんが）リソースのデプロイリージョン
+    KeyPairLocation = ~/.ssh/cyclecloud.pem   # CycleCloud がローカル ファイルシステムで SSH キーペアを見つける場所
+
+        [[[configuration]]]
+        ### ノードやprojectで扱われる定義
+        ##♯ https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/configuration-reference?view=cyclecloud-8#configuration-cyclecloud
+        pbspro.version = $PBSVersion                                # ？？
+        # For fast spin-up after Deallocate, force an immediate re-converge on boot
+        cyclecloud.converge_on_boot = true                          # ？？
+        cyclecloud.hosts.standalone_dns.enabled = $standalone_dns   # ノードの名前解決に/etc/hosts ファイルの管理を有効にします
+        
+        ### Disable normal NFS exports and mounts
+        ### 各ノードでのNFSマウントを無効化しています。要件に応じて変更ください
+        cyclecloud.mounts.sched.disabled = true
+        cyclecloud.mounts.shared.disabled = true
+        cyclecloud.exports.sched.disabled = true
+        cyclecloud.exports.shared.disabled = true
+        cyclecloud.exports.sched.samba.enabled = false
+        cyclecloud.exports.shared.samba.enabled = false
+        cyclecloud.exports.defaults.samba.enabled = false
+        cshared.server.legacy_links_disabled = true
+
+        [[[cluster-init cyclecloud/pbspro:default]]]
+        ### cluster-init に関する定義、ノード上で実行する project のスペックを指定します
+        ### この定義により、ノード共通で cyclecloud/pbspro:default が実行されることになります
+        ### https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/cluster-init-reference?view=cyclecloud-8
+        Optional = false
+
+        ### ここからは、ノードのマウント/etc/fstab に相当する構成になります。
+        ### https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/configuration-reference?view=cyclecloud-8#configuration-cyclecloudmounts
+
+        [[[configuration cyclecloud.mounts.nfs_shared]]]
+        ### /shared に、指定されたアドレスのサーバーのexportされたディレクトリをマウントします。
+        type = nfs
+        mountpoint = /shared
+        export_path = $NFSSharedExportPath
+        address = $NFSAddress
+        options = $NFSSharedMountOptions
+
+        [[[configuration cyclecloud.mounts.nfs_sched]]]
+        ### /sched に、指定されたアドレスのサーバーのexportされたディレクトリをマウントします。
+        type = nfs
+        mountpoint = /sched
+        disabled = $NFSSchedDisable
+
+        [[[configuration cyclecloud.mounts.additional_nfs]]]
+        ### その他のNFSをマウントするオプションです。設定画面から、3つのNFSマウントを指定する事が出来るようになっています。その1つ目です。
+        disabled = ${AdditionalNAS isnt true}
+        type = nfs
+        address = $AdditonalNFSAddress
+        mountpoint = $AdditionalNFSMountPoint
+        export_path = $AdditionalNFSExportPath
+        options = $AdditionalNFSMountOptions
+
+        [[[configuration cyclecloud.mounts.additional_nfs2]]]
+        ### その他のNFSをマウントするオプションです。設定画面から、3つのNFSマウントを指定する事が出来るようになっています。その2つ目です。
+        disabled = ${AdditionalNAS2 isnt true}
+        type = nfs
+        address = $AdditonalNFSAddress2
+        mountpoint = $AdditionalNFSMountPoint2
+        export_path = $AdditionalNFSExportPath2
+        options = $AdditionalNFSMountOptions2
+
+        [[[configuration cyclecloud.mounts.additional_nfs3]]]
+        ### その他のNFSをマウントするオプションです。設定画面から、3つのNFSマウントを指定する事が出来るようになっています。その3つ目です。
+        disabled = ${AdditionalNAS3 isnt true}
+        type = nfs
+        address = $AdditonalNFSAddress3
+        mountpoint = $AdditionalNFSMountPoint3
+        export_path = $AdditionalNFSExportPath3
+        options = $AdditionalNFSMountOptions3
+
+    [[node pbs_master_login]]
+    ## PBS マスターノード、に関する設定のセクションです。
+    ImageName = $SchedulerImageName                         # CycleCloudでサポートされているイメージ名を指定します。マーケットプレイス、カスタムイメージで置き換えることもできます。
+    MachineType = $MasterServerMachineType                        # Azure VM のサイズ、SKUを指定します。
+    IsReturnProxy = false                                   # このノードへのリバース チャネル プロキシを確立します。今回はプロキシ経由でアクセスしませんので、falseとしています。
+    AdditionalClusterInitSpecs = $MasterServerClusterInitSpecs    # ？？
+    EphemeralOSDisk = $EphemeralOSDisk                      # VMでエフェメラル ブート ディスクを使用する（サポートされているVM SKUの場合）。要件に応じて設定してください。
+    ComputerName = $ComputerName                            # VM のコンピューター名。 指定した場合は、システムによって生成された名前をオーバーライドします
+
+        [[[configuration]]]
+        ### PBSマスターノードへのNFSマウントに関する設定です。
+        cyclecloud.mounts.nfs_sched.disabled = true                         # ？？
+        cyclecloud.mounts.nfs_shared.disabled = ${NFSType != "External"}    # ？？
+
+        [[[cluster-init cyclecloud/pbspro:server]]]
+        ### PBS マスターノードのcluster-init に関する定義、ノード上で実行する project のスペックを指定します
+        ### この定義により、ノード共通で cyclecloud/pbspro:server が実行されることになります
+        ### https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/cluster-init-reference?view=cyclecloud-8
+
+        [[[network-interface eth0]]]
+        ### PBS マスターノードのNICに関する設定です。
+        ### https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/network-interface-reference?view=cyclecloud-8
+        AssociatePublicIpAddress = false    # ノードにパブリックIPアドレスを割り当てるか否かの設定です。閉域であればfalse固定にしてしまってもいいかもしれません。
+
+        [[[volume boot]]]
+        ### マスターノードのbootボリュームに関する設定です。以下参照し、要件に応じてオプション指定してください。
+        ### https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/volume-reference?view=cyclecloud-8#boot-volume
+
+        [[[volume sched]]]
+        ### マスターノードの/schedディスク定義です。VMのデータディスクとして追加されます。以下参照し、要件に応じてオプション指定してください。
+        Size = 1024                 # サイズをGB単位で指定します。
+        StorageAccountType = $SchedSKU   # UltraSSD_LRS、Premium_LRS、StandardSSD_LRS、Standard_LRS (Azure Disk Types) が設定されていない場合、VM サイズの機能に応じて既定でStandard_LRSまたはPremium_LRSされます。
+        Mount = builtinsched        # configuration オブジェクトで説明されているマウント コンストラクトの名前 を指定します。
+        Persistent = True           # ディスクの内容を永続化する/しない の設定です。
+
+        [[[volume shared]]]
+        ### マスターノードの/schedディスク定義です。VMのデータディスクとして追加されます。以下参照し、要件に応じてオプション指定してください。MFSTypeパラメータにBuiltin が指定された場合は、
+        Size = ${ifThenElse(NFSType == "Builtin", FilesystemSize, 10)}
+        StorageAccountType = $SharedSKU   # UltraSSD_LRS、Premium_LRS、StandardSSD_LRS、Standard_LRS (Azure Disk Types) が設定されていない場合、VM サイズの機能に応じて既定でStandard_LRSまたはPremium_LRSされます。
+        Mount = builtinshared       # configuration オブジェクトで説明されているマウント コンストラクトの名前 を指定します。
+        Persistent = ${NFSType == "Builtin"}
+
+        [[[configuration cyclecloud.mounts.builtinsched]]]
+        ### 先のvolumeで定義したvolumeをマウントします。
+        ### https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/configuration-reference?view=cyclecloud-8#configuration-cyclecloudmounts
+        mountpoint = /sched
+        fs_type = xfs
+
+        [[[configuration cyclecloud.mounts.builtinshared]]]
+        ### 先のvolumeで定義したvolumeをマウントします。
+        ### https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/configuration-reference?view=cyclecloud-8#configuration-cyclecloudmounts
+        disabled = ${NFSType != "Builtin"}
+        mountpoint = /shared
+        fs_type = xfs
+
+        [[[configuration cyclecloud.exports.builtinsched]]]
+        ### CycleCloud ノードを NFS サーバーとして構成できます。 エクスポート セクションは 、/etc/exports エントリに対応します。マスターノードの sched volume （データディスク）を、他のノードにNFSマスントする事が出来るようにexport設定を行うセクションです。
+        ### https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/configuration-reference?view=cyclecloud-8#configuration-cyclecloudexports
+        export_path = /sched        # NFS ファイルシステムとしてエクスポートするローカル パス。 ディレクトリがまだ存在しない場合は、作成されます。
+        options = no_root_squash    # ファイル システムをエクスポートするときに使用する既定以外のオプション。
+        type = nfs                  # 必須 他の共有ファイルシステムの種類と区別するために、すべての NFS エクスポートに対して type 属性を nfsに設定 する必要があります。
+
+        [[[configuration cyclecloud.exports.builtinshared]]]
+        ### CycleCloud ノードを NFS サーバーとして構成できます。 エクスポート セクションは 、/etc/exports エントリに対応します。マスターノードの sched volume （データディスク）を、他のノードにNFSマスントする事が出来るようにexport設定を行うセクションです。
+        ### https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/configuration-reference?view=cyclecloud-8#configuration-cyclecloudexports
+        disabled = ${NFSType != "Builtin"}
+        export_path = /shared
+        type = nfs
+
+    [[nodearray HB]]
+    ## HBファミリーの計算ノードに関する定義です。以下ドキュメントを参照し、必要に応じて設定を追加してください。
+    ## https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/node-nodearray-reference?view=cyclecloud-8#nodearray-specific-attributes
+    MachineType = Standard_HB120rs_v3                       # VMのSKUを指定します。
+    MaxCoreCount = $MaxHBCoreCount                     # 最大コア数を指定します。
+    ImageName = $ImageName_HBv3                             # VMのイメージを指定します。
+    EphemeralOSDisk = $HBEphemeralOSDisk                    # EphemeralOSDisk の利用あり/なし を指定します
+    ComputerNamePrefix = $ComputerNamePrefix_HB             # コンピュータ名のprefixを指定します。standalone_dns を無効化した場合のみ有効です。
+    Interruptible = $UseLowPrio_HBv3                               # Spot VMを利用する場合にtrueにします。今回は使用しないと思いますので、falseとします。
+    AdditionalClusterInitSpecs = $HBClusterInitSpecs        # ？？ 追加で実施する HBClusterInitSpecs を指定します。
+
+        [[[configuration]]]
+        autoscale.enabled = $Autoscale                      # ？？ Autoscaleの有効化
+
+        [[[cluster-init cyclecloud/pbspro:execute]]]        # この定義により、HBノードクラスターで cyclecloud/pbspro:execute が実行されることになります 
+
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = false                    # パブリックIPアドレスの利用有無の指定、閉域構成なのでfalseとしています。
+
+    [[nodearray NC]]
+    MachineType = Standard_NC48ads_A100_v4
+    MaxCoreCount = $MaxNCCoreCount
+    ImageName = $ImageName_NCA100v4
+    EphemeralOSDisk = $NCEphemeralOSDisk 
+    ComputerNamePrefix = $ComputerNamePrefix_NC
+    Interruptible = $UseLowPrio_NCA100v4
+    AdditionalClusterInitSpecs = $NCClusterInitSpecs
+
+        [[[configuration]]]
+        autoscale.enabled = $Autoscale
+
+        [[[cluster-init cyclecloud/pbspro:execute]]]
+
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = false
+
+    [[nodearray M]]
+    MachineType = Standard_M128s_v2
+    MaxCoreCount = $MaxMCoreCount
+    ImageName = $ImageName_Msv2
+    EphemeralOSDisk = $MEphemeralOSDisk
+    ComputerNamePrefix = $ComputerNamePrefix_M
+    Interruptible = $UseLowPrio_Msv2
+    AdditionalClusterInitSpecs = $MClusterInitSpecs
+
+        [[[configuration]]]
+        autoscale.enabled = $Autoscale
+
+        [[[cluster-init cyclecloud/pbspro:execute]]]
+
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = false
+
+# ここからはパラメータの指定セクションです。CycleCloudの管理webUIでの入力項目も兼ねた設定となっています。
+
+[parameters About]
+# クラスタ設定画面の1つ目の About セクションです。ここは特に説明書きがされているだけです。
+# https://learn.microsoft.com/ja-jp/azure/cyclecloud/cluster-references/parameter-reference?view=cyclecloud-8
+
+Order = 1
+
+    [[parameters About OpenPBS]]
+
+        [[[parameter pbspro]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template := "<table role=\"presentation\"><tr><td><p>OpenPBS is a highly configurable open source workload manager. See the <a href=\"http://www.openpbs.org/\" target=\"_blank\">OpenPBS project site</a> for an overview.</p></td></tr></table>"
+
+[parameters Required Settings]
+# 2つ目のセクション、Required Settings です。
+Order = 10
+
+    [[parameters Master Server Virtual Machines ]]
+    ## セクションのタイトルと説明です。
+    Description = "The cluster, in this case, has two roles: the scheduler server-node with shared filer and the execute hosts. Configure which VM types to use based on the requirements of your application."
+    Order = 20
+
+        [[[parameter Region]]]
+        ### 
+        Label = Region
+        Description = Deployment Location
+        ParameterType = Cloud.Region
+
+        [[[parameter MasterServerMachineType]]]
+        Label = Server VM Type
+        Description = The VM type for scheduler server and shared filer.
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_D96s_v5
+        Config.Multiselect = true
+
+        [[[parameter SchedulerImageName]]]
+        Label = Scheduler OS
+        ParameterType = Cloud.Image
+        Config.OS = linux
+        DefaultValue = almalinux8
+        Config.Filter := Package in {"cycle.image.centos7", "cycle.image.centos8", "almalinux8"}
+
+        [[[parameter EphemeralOSDisk]]]
+        Label = Server EphemeralOSDisk 
+        DefaultValue = true
+
+        [[[parameter ComputerName]]]
+        Label = Server ComputerName
+        DefaultValue = PBSserver
+
+        [[[parameter standalone_dns]]]
+        Label = standalone_dns
+        DefaultValue = true
+
+        [[[parameter MasterServerClusterInitSpecs]]]
+        Label = Server Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to the server node
+        ParameterType = Cloud.ClusterInitSpecs
+
+    [[parameters Auto-Scaling]]
+    Description = "The cluster can autoscale to the workload, adding execute hosts as jobs are queued. To enable this check the box below and choose the initial and maximum core counts for the cluster"
+    Order = 30
+
+        [[[parameter Autoscale]]]
+        Label = Autoscale
+        DefaultValue = true
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Start and stop execute instances automatically
+
+        [[[parameter MaxExecuteCoreCount]]]
+        Label = Max Cores
+        Description = The total number of execute cores to start
+        DefaultValue = 1500
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 1
+        Config.IntegerOnly = true
+
+        [[[parameter UseLowPrio_HBv3]]]
+        Label = Use low priority instances for HBv3
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Use low priority instances for HBv3
+
+		[[[parameter HBEphemeralOSDisk]]]
+		Label = EphemeralDisk for HBv3
+		DefaultValue = false
+		widget.Plugin = pico.form.BooleanCheckBox
+		widget.Label = HBv3 EphemeralOSDisk
+
+		[[[parameter MaxHBCoreCount]]]
+		Label = Max Cores
+		Description = The total number of execute cores to start
+		DefaultValue = 500
+		Config.Plugin = pico.form.NumberTextBox
+		Config.MinValue = 1
+		Config.IntegerOnly = true
+
+        [[[parameter ComputerNamePrefix_HB]]]
+        Label = HBv3 ComputerNamePrefix
+        DefaultValue = HB-
+
+        [[[parameter UseLowPrio_NCA100v4]]]
+        Label = Use low priority instances for NC_A100_v4
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Use low priority instances for NC_A100_v4
+
+		[[[parameter NCEphemeralOSDisk]]]
+		Label = EphemeralDisk for NC_A100_v4
+		DefaultValue = false
+		widget.Plugin = pico.form.BooleanCheckBox
+		widget.Label = NC_A100_v4 EphemeralOSDisk
+
+		[[[parameter MaxNCCoreCount]]]
+		Label = Max Cores
+		Description = The total number of execute cores to start
+		DefaultValue = 500
+		Config.Plugin = pico.form.NumberTextBox
+		Config.MinValue = 1
+		Config.IntegerOnly = true
+
+        [[[parameter ComputerNamePrefix_NC]]]
+        Label = NC_A100_v4 ComputerNamePrefix
+        DefaultValue = NC-
+
+        [[[parameter UseLowPrio_Msv2]]]
+        Label = Use low priority instances for Msv2
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Use low priority instances for Msv2
+
+		[[[parameter MEphemeralOSDisk]]]
+		Label = EphemeralDisk for Msv2
+		DefaultValue = false
+		widget.Plugin = pico.form.BooleanCheckBox
+		widget.Label = Msv2 EphemeralOSDisk
+
+		[[[parameter MaxMCoreCount]]]
+		Label = Max Cores
+		Description = The total number of execute cores to start
+		DefaultValue = 500
+		Config.Plugin = pico.form.NumberTextBox
+		Config.MinValue = 1
+		Config.IntegerOnly = true
+
+        [[[parameter ComputerNamePrefix_M]]]
+        Label = Msv2 ComputerNamePrefix
+        DefaultValue = M-
+        
+    [[parameters Networking]]
+    Order = 40
+
+        [[[parameter SubnetId]]]
+        Label = Subnet ID
+        Description = Subnet Resource Path (ResourceGroup/VirtualNetwork/Subnet)
+        ParameterType = Azure.Subnet
+        Required = True
+
+[parameters Network Attached Storage]
+Order = 15
+
+
+    [[parameters Scheduler Mount]]
+    Order = 5
+        [[[parameter About sched]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template = ''' <p>The directory <code>/sched</code> is a network attached mount and exists in all nodes of the cluster.
+            It's managed by the scheduler node.
+            To disable the mount of the /sched directory, and to supply your own for a <strong>hybrid scenario</strong>, select the checkbox below '''
+        Order = 6
+
+        [[[parameter NFSSchedDisable]]]
+        HideLabel = true
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = External Scheduler
+
+		[[[parameter SchedSKU]]]
+		Label = sched SKU
+		Description = The SKU of the storage to use for the /sched mount
+		Config.Plugin = pico.form.Dropdown
+        Config.Entries := {[Label="Standard_LRS"; Value="Standard_LRS"], [Label="StandardSSD_LRS"; Value="StandardSSD_LRS"], [Label="Premium_LRS"; Value="Premium_LRS"]}
+		DefaultValue = Premium_LRS
+		Conditions.Excluded := NFSSchedDisable
+
+    [[parameters Default NFS Share]]
+    Order = 10
+        [[[parameter About shared]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template := "<p>The directory <code>/shared</code> is a network attached mount and exists in all nodes of the cluster. Users' home directories reside within this mountpoint with the base homedir <code>/shared/home</code>.<br><br>There are two options for providing this mount:<br> <strong>[Builtin]</strong>: The scheduler node is an NFS server that provides the mountpoint to the other nodes of the cluster.<br> <strong>[External NFS]</strong>: A network attached storage such as Azure Netapp Files, HPC Cache, or another VM running an NFS server, provides the mountpoint.</p>"
+        Order = 20
+
+        [[[parameter NFSType]]]
+        Label = NFS Type
+        ParameterType = StringList
+        Config.Label = Type of NFS to use for this cluster
+        Config.Plugin = pico.form.Dropdown
+        Config.Entries := {[Label="External NFS"; Value="External"], [Label="Builtin"; Value="Builtin"]}
+        DefaultValue = Builtin
+
+        [[[parameter NFSAddress]]]
+        Label = NFS IP Address
+        Description = The IP address or hostname of the NFS server. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
+        Config.ParameterType = String
+        Conditions.Hidden := NFSType != "External"
+
+        [[[parameter NFSSharedExportPath]]]
+        Label = Shared Export Path
+        Description = The path exported by the file system
+        DefaultValue = /shared
+        Conditions.Hidden := NFSType != "External"
+
+        [[[parameter NFSSharedMountOptions]]]
+        Label = NFS Mount Options
+        Description = NFS Client Mount Options
+        Conditions.Hidden := NFSType != "External"
+
+        [[[parameter FilesystemSize]]]
+        Label = Size (GB)
+        Description = The filesystem size
+        DefaultValue = 100
+
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 10
+        Config.MaxValue = 10240
+        Config.IntegerOnly = true
+        Conditions.Excluded := NFSType != "Builtin"
+
+		[[[parameter SharedSKU]]]
+		Label = NFS SKU
+		Description = The SKU of the storage to use for the /shared mount
+		Config.Plugin = pico.form.Dropdown
+		Config.Entries := {[Label="Standard_LRS"; Value="Standard_LRS"], [Label="StandardSSD_LRS"; Value="StandardSSD_LRS"], [Label="Premium_LRS"; Value="Premium_LRS"]}
+		DefaultValue = Premium_LRS
+		Conditions.Excluded := NFSType != "Builtin"
+
+    [[parameters Additional NFS Mount]]
+    Order = 20
+        [[[parameter Additional NFS Mount Readme]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template := "<p>Mount another NFS endpoint on the cluster nodes</p>"
+        Order = 20
+
+        [[[parameter AdditionalNAS]]]
+        HideLabel = true
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Add NFS mount
+
+        [[[parameter AdditonalNFSAddress]]]
+        Label = NFS IP Address
+        Description = The IP address or hostname of the NFS server. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
+        Config.ParameterType = String
+        Conditions.Excluded := AdditionalNAS isnt true
+
+        [[[parameter AdditionalNFSMountPoint]]]
+        Label = NFS Mount Point
+        Description = The path at which to mount the Filesystem
+        DefaultValue = /data
+        Conditions.Excluded := AdditionalNAS isnt true
+
+        [[[parameter AdditionalNFSExportPath]]]
+        Label = NFS Export Path
+        Description = The path exported by the file system
+        DefaultValue = /data
+        Conditions.Excluded := AdditionalNAS isnt true
+
+        [[[parameter AdditionalNFSMountOptions]]]
+        Label = NFS Mount Options
+        Description = NFS Client Mount Options
+        Conditions.Excluded := AdditionalNAS isnt true
+
+    [[parameters Additional NFS Mount2]]
+    Order = 20
+        [[[parameter Additional NFS Mount Readme2]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template := "<p>Mount another NFS2 endpoint on the cluster nodes</p>"
+        Order = 20
+
+        [[[parameter AdditionalNAS2]]]
+        HideLabel = true
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Add NFS mount
+
+        [[[parameter AdditonalNFSAddress2]]]
+        Label = NFS IP Address
+        Description = The IP address or hostname of the NFS server. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
+        Config.ParameterType = String
+        Conditions.Excluded := AdditionalNAS2 isnt true
+
+        [[[parameter AdditionalNFSMountPoint2]]]
+        Label = NFS Mount Point
+        Description = The path at which to mount the Filesystem
+        DefaultValue = /data
+        Conditions.Excluded := AdditionalNAS2 isnt true
+
+        [[[parameter AdditionalNFSExportPath2]]]
+        Label = NFS Export Path
+        Description = The path exported by the file system
+        DefaultValue = /data
+        Conditions.Excluded := AdditionalNAS2 isnt true
+
+        [[[parameter AdditionalNFSMountOptions2]]]
+        Label = NFS Mount Options
+        Description = NFS Client Mount Options
+        Conditions.Excluded := AdditionalNAS2 isnt true
+
+    [[parameters Additional NFS Mount3]]
+    Order = 20
+        [[[parameter Additional NFS Mount Readme3]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template := "<p>Mount another NFS3 endpoint on the cluster nodes</p>"
+        Order = 20
+
+        [[[parameter AdditionalNAS3]]]
+        HideLabel = true
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Add NFS mount
+
+        [[[parameter AdditonalNFSAddress3]]]
+        Label = NFS IP Address
+        Description = The IP address or hostname of the NFS server. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
+        Config.ParameterType = String
+        Conditions.Excluded := AdditionalNAS3 isnt true
+
+        [[[parameter AdditionalNFSMountPoint3]]]
+        Label = NFS Mount Point
+        Description = The path at which to mount the Filesystem
+        DefaultValue = /data
+        Conditions.Excluded := AdditionalNAS3 isnt true
+
+        [[[parameter AdditionalNFSExportPath3]]]
+        Label = NFS Export Path
+        Description = The path exported by the file system
+        DefaultValue = /data
+        Conditions.Excluded := AdditionalNAS3 isnt true
+
+        [[[parameter AdditionalNFSMountOptions3]]]
+        Label = NFS Mount Options
+        Description = NFS Client Mount Options
+        Conditions.Excluded := AdditionalNAS3 isnt true
+
+[parameters Advanced Settings]
+Order = 20
+
+    [[parameters PBSPro Settings ]]
+    Description = "Section for configuring OpenPBS"
+    Order = 5
+
+        [[[parameter PBSVersion]]]
+        Label = PBS Version
+        Config.Plugin = pico.form.Dropdown
+        Config.Entries := {[Label="OpenPBS v20, el8-only"; Value="20.0.1-0"], [Label="PBSPro v18, el7-only"; Value="18.1.4-0"]}
+        DefaultValue = 20.0.1-0
+
+    [[parameters Azure Settings]]
+    Order = 10
+
+        [[[parameter Credentials]]]
+        Description = The credentials for the cloud provider
+        ParameterType = Cloud.Credentials
+
+    [[parameters Software]]
+    Description = "Specify the scheduling software, and base OS installed on all nodes, and optionally the cluster-init and chef versions from your Locker."
+    Order = 10
+
+        [[[parameter ImageName_HBv3]]]
+        Label = HBv3 OS
+        ParameterType = Cloud.Image
+        Config.OS = linux
+        DefaultValue = almalinux8
+        Config.Filter := Package in {"cycle.image.centos7", "cycle.image.centos8", "almalinux8"}
+
+        [[[parameter ImageName_NCA100v4]]]
+        Label = NC_A100_v4 OS
+        ParameterType = Cloud.Image
+        Config.OS = linux
+        DefaultValue = almalinux8
+        Config.Filter := Package in {"cycle.image.centos7", "cycle.image.centos8", "almalinux8"}
+
+        [[[parameter ImageName_Msv2]]]
+        Label = M128s_v2 OS
+        ParameterType = Cloud.Image
+        Config.OS = linux
+        DefaultValue = almalinux8
+        Config.Filter := Package in {"cycle.image.centos7", "cycle.image.centos8", "almalinux8"}
+
+        [[[parameter HBClusterInitSpecs]]]
+        Label = HB Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to the server node
+        ParameterType = Cloud.ClusterInitSpecs
+
+        [[[parameter NCClusterInitSpecs]]]
+        Label = NC Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to execute nodes
+        ParameterType = Cloud.ClusterInitSpecs
+
+        [[[parameter MClusterInitSpecs]]]
+        Label = M Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to execute nodes
+        ParameterType = Cloud.ClusterInitSpecs
+
+
